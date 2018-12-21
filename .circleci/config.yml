@@ -3,11 +3,11 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  tests:
     docker:
       # specify the version
       - image: circleci/golang:1.11
-      
+      # - image: circleci/golang:1.12
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -21,12 +21,28 @@ jobs:
     environment:
       KUBEBUILDER_CONTROLPLANE_START_TIMEOUT: "60s"
       TESTFLAGS: -p 2
+      TEST_RESULTS: /tmp/test-results
     steps:
       - checkout
       - run: curl -L -O https://github.com/kubernetes-sigs/kubebuilder/releases/download/v1.0.5/kubebuilder_1.0.5_linux_amd64.tar.gz
       - run: tar -zxvf kubebuilder_1.0.5_linux_amd64.tar.gz
       - run: mv kubebuilder_1.0.5_linux_amd64 kubebuilder && sudo mv kubebuilder /usr/local/
       - run: export PATH=$PATH:/usr/local/kubebuilder/bin
+      - run: go get github.com/jstemmer/go-junit-report
       # specify any bash command here prefixed with `run: `
-      - run: go test -v ./pkg/apis/...
-      - run: make
+      - run: mkdir -p ${TEST_RESULTS}/go-test
+      - run: gotestsum --junitfile ${TEST_RESULTS}/go-testresults.xml -- ${TESTFLAGS} ./pkg/... 
+      - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: /tmp/test-results
+          destination: raw-test-output
+      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: /tmp/test-results
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - tests
+ 
+
+
