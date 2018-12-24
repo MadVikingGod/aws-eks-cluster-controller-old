@@ -43,7 +43,6 @@ workflows:
     jobs:
       - tests
       - aws-ecr/build_and_push_image:
-          context: myContext
           region: $AWS_REGION
           account-url: $AWS_ECR_ACCOUNT_URL
           repo: aws-eks-cluster-controller
