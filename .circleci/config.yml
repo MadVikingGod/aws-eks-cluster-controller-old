@@ -1,7 +1,6 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@1.0.0
 jobs:
   tests:
     docker:
@@ -43,6 +42,17 @@ workflows:
   tests:
     jobs:
       - tests
- 
+  build_and_push:
+    jobs:
+       - aws-ecr/build_and_push_image:
+          context: myContext
+          region: $AWS_REGION
+          account-url: $AWS_ECR_ACCOUNT_URL
+          repo: aws-eks-cluster-controller
+          tag: $CIRCLE_SHA1
+          dockerfile: Dockerfile
+          path: .
+          requires:
+            - tests
 
 
