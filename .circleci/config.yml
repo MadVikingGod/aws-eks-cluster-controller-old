@@ -39,12 +39,10 @@ jobs:
 
 workflows:
   version: 2
-  tests:
-    jobs:
-      - tests
   build_and_push:
     jobs:
-       - aws-ecr/build_and_push_image:
+      - tests
+      - aws-ecr/build_and_push_image:
           context: myContext
           region: $AWS_REGION
           account-url: $AWS_ECR_ACCOUNT_URL
