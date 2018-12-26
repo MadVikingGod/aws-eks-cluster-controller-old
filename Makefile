@@ -49,10 +49,10 @@ ifeq ($(IAMROLEARN), )
 	echo "IAMROLEARN must be set"
 	exit 1
 endif
-	sed -i '' -e 's@image: .*@image: '"${IMG}"'@' -e 's@iam.amazonaws.com/role: .*@iam.amazonaws.com/role: '"${IAMROLEARN}"'@' ./config/default/manager_image_patch.yaml
+	sed -i.orig -e 's@image: .*@image: '"${IMG}"'@' -e 's@iam.amazonaws.com/role: .*@iam.amazonaws.com/role: '"${IAMROLEARN}"'@' ./config/default/manager_image_patch.yaml
 
 patch-deployment:
-	@sed -i '' -e 's@image: .*@image: '"${IMG}"'@' -e 's@iam.amazonaws.com/role: .*@iam.amazonaws.com/role: '"${IAMROLEARN}"'@' ./config/default/manager_image_patch.yaml
+	@sed -i.orig -e 's@image: .*@image: '"${IMG}"'@' -e 's@iam.amazonaws.com/role: .*@iam.amazonaws.com/role: '"${IAMROLEARN}"'@' ./config/default/manager_image_patch.yaml
 # Push the docker image
 docker-push:
 	docker push ${IMG}
