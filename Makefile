@@ -21,7 +21,7 @@ install: manifests
 	kubectl apply -f config/crds
 
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
-deploy: manifests
+deploy: manifests patch-deployment
 	kubectl apply -f config/crds
 	kustomize build config/default | kubectl apply -f -
 
@@ -51,6 +51,8 @@ ifeq ($(IAMROLEARN), )
 endif
 	sed -i '' -e 's@image: .*@image: '"${IMG}"'@' -e 's@iam.amazonaws.com/role: .*@iam.amazonaws.com/role: '"${IAMROLEARN}"'@' ./config/default/manager_image_patch.yaml
 
+patch-deployment:
+	@sed -i '' -e 's@image: .*@image: '"${IMG}"'@' -e 's@iam.amazonaws.com/role: .*@iam.amazonaws.com/role: '"${IAMROLEARN}"'@' ./config/default/manager_image_patch.yaml
 # Push the docker image
 docker-push:
 	docker push ${IMG}
