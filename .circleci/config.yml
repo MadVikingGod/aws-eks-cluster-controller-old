@@ -65,6 +65,8 @@ workflows:
           path: .
           requires:
             - tests
-      - deploy
+      - deploy:
+          requires:
+            - aws-ecr/build_and_push_image
 
 
