@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@0.0.5
+  aws-cli: circleci/aws-cli@0.1.6
 jobs:
   tests:
     docker:
@@ -39,16 +40,16 @@ jobs:
   deploy:
     docker:
       # specify the version
-      - image: circleci/golang:1.11
+      - image: circleci/python:3-stretch-browsers
     working_directory: /go/src/github.com/awslabs/aws-eks-cluster-controller
-    environment:
-      IMG: "$AWS_ECR_ACCOUNT_URL/aws-eks-cluster-contoller:$CIRCLE_SHA1"
-      IAMROLEARN: $CONTROLER_ROLE_ARN
     steps:
+      - aws-cli/install
+      - aws-cli/configure:
+          region: $AWS_REGION
       - run: curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.11.6/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/kubectl
       - run: curl -LO https://github.com/kubernetes-sigs/kustomize/releases/download/v1.0.11/kustomize_1.0.11_linux_amd64 && chmod +x kustomize* && sudo mv kustomize_1.0.11_linux_amd64 /usr/local/bin/kustomize
       - checkout
-      - run: make deploy
+      - run: IMG="$AWS_ECR_ACCOUNT_URL/aws-eks-cluster-contoller:$CIRCLE_SHA1" IAMROLEARN=$CONTROLER_ROLE_ARN make deploy
       
 
 workflows:
